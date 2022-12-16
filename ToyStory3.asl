@@ -98,7 +98,7 @@ split
 
     return vars.levelFile.Current == "particles/st_hauntedbakery_wii.dbl" &&
            vars.bossHealth.Old > 0.05 && vars.bossHealth.Old < 0.4 &&
-           vars.bossHealth.Current > 0.8 && vars.bossHealth.Current <= 1 &&
+           vars.bossHealth.Current > 0.8 && vars.bossHealth.Current < 1 &&
            vars.bossPhase.Current == 4;
 }
 
