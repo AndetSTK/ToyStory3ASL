@@ -45,7 +45,7 @@ init
     if (levelFile_basePtr != IntPtr.Zero && load_basePtr != IntPtr.Zero && save_basePtr != IntPtr.Zero && levelSave_basePtr != IntPtr.Zero && boss_basePtr != IntPtr.Zero) {
         print("All base addresses found.");
         retry = false;
-        timer.IsGameTimePaused = false;
+        //timer.IsGameTimePaused = false;
     } else {
         print("Not all base addresses found. Retrying...");
         Thread.Sleep(500);
@@ -54,13 +54,14 @@ init
     
     vars.levelFile = new StringWatcher(new DeepPointer(levelFile_basePtr, 0x0, 0x138), 128);
     vars.load = new MemoryWatcher<int>(new DeepPointer(load_basePtr, 0x1C, 0x138, 0xFFB0));
+    vars.gameReady = new MemoryWatcher<int>(new DeepPointer(load_basePtr, 0x1C, 0x138));
     vars.levelSave1 = new MemoryWatcher<float>(new DeepPointer(save_basePtr, 0x0, 0x154, 0xC1C, 0x15C, 0xE8, 0x39C));
     vars.levelSave2 = new MemoryWatcher<byte>(new DeepPointer(levelSave_basePtr, 0x1C, 0x3C));
     vars.exitSave = new MemoryWatcher<float>(new DeepPointer(save_basePtr, 0x0, 0x154, 0x3C, 0x2C, 0x14, 0x8, 0x138, 0x58, 0x40));
     vars.exitSaveToyBarn = new MemoryWatcher<float>(new DeepPointer(save_basePtr, 0x0, 0x154, 0x3C, 0x2C, 0x8, 0x18C, 0x2C, 0x8, 0x138, 0x58, 0x40));
     vars.bossHealth = new MemoryWatcher<float>(new DeepPointer(boss_basePtr, 0x0, 0xF4, 0x14, 0x8, 0x1C0));
     vars.bossPhase = new MemoryWatcher<int>(new DeepPointer(boss_basePtr, 0x0, 0xF4, 0x14, 0x8, 0x1D4));
-    vars.watchers = new MemoryWatcherList() {vars.levelFile, vars.load,
+    vars.watchers = new MemoryWatcherList() {vars.levelFile, vars.load, vars.gameReady,
                                              vars.levelSave1, vars.levelSave2,
                                              vars.exitSave, vars.exitSaveToyBarn,
                                              vars.bossHealth, vars.bossPhase};
@@ -68,6 +69,14 @@ init
     current.subLevel = 1;
     current.isSaving = false;
     current.isLoading = false;
+    
+    while (vars.gameReady.Current == 0) {
+        Thread.Sleep(5);
+        print("Waiting until game ready...");
+        vars.watchers.UpdateAll(game);
+    }
+    print("Game ready!");
+    timer.IsGameTimePaused = false;
 }
 
 update
@@ -83,7 +92,7 @@ update
 
     if (vars.load.Old == 0 && vars.load.Current > 0) {current.isLoading = true; current.isSaving = false;}
     if (vars.load.Old > 0 && vars.load.Current == 0) {current.isLoading = false;}
-    
+
     if (current.isSaving && !old.isSaving && vars.levelFile.Current != "particles/wtwii_town_wii.dbl") {current.subLevel++;}
 }
 
