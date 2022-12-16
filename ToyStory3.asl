@@ -45,7 +45,6 @@ init
     if (levelFile_basePtr != IntPtr.Zero && load_basePtr != IntPtr.Zero && save_basePtr != IntPtr.Zero && levelSave_basePtr != IntPtr.Zero && boss_basePtr != IntPtr.Zero) {
         print("All base addresses found.");
         retry = false;
-        //timer.IsGameTimePaused = false;
     } else {
         print("Not all base addresses found. Retrying...");
         Thread.Sleep(500);
