@@ -75,13 +75,14 @@ init
     timer.IsGameTimePaused = false;
     current.isSaving = false;
     current.isLoading = false;
+    vars.endSplitReady = false;
 }
 
 update
 {
     vars.watchers.UpdateAll(game);
     
-    if (timer.CurrentSplitIndex == -1) {current.subLevel = 1; current.isLoading = false; current.isSaving = false;}
+    if (timer.CurrentSplitIndex == -1) {current.subLevel = 1; current.isLoading = false; current.isSaving = false; vars.endSplitReady = false;}
 
     if ((vars.exitSave.Current != 1 && vars.exitSave.Current > 0.9 && vars.exitSave.Current < 1.1) ||
         (vars.exitSaveToyBarn.Current != 1 && vars.exitSaveToyBarn.Current > 0.9 && vars.exitSaveToyBarn.Current < 1.1) ||
@@ -92,6 +93,11 @@ update
     if (vars.load.Old > 0 && vars.load.Current == 0) {current.isLoading = false;}
 
     if (current.isSaving && !old.isSaving && vars.levelFile.Current != "particles/wtwii_town_wii.dbl") {current.subLevel++;}
+    
+    if (vars.levelFile.Current == "particles/st_hauntedbakery_wii.dbl" &&
+        vars.bossPhase.Current == 4 &&
+        vars.bossHealth.Current > 0.3 &&
+        vars.bossHealth.Current < 0.7) {vars.endSplitReady = true;}
 }
 
 start
@@ -105,8 +111,9 @@ split
 
     return vars.levelFile.Current == "particles/st_hauntedbakery_wii.dbl" &&
            vars.bossHealth.Old > 0.05 && vars.bossHealth.Old < 0.4 &&
-           vars.bossHealth.Current > 0.8 && vars.bossHealth.Current < 1 &&
-           vars.bossPhase.Current == 4;
+           vars.bossHealth.Current > 0.8 && vars.bossHealth.Current < 1.3 &&
+           vars.bossPhase.Current == 4 &&
+           vars.endSplitReady;
 }
 
 isLoading
