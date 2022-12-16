@@ -64,10 +64,6 @@ init
                                              vars.levelSave1, vars.levelSave2,
                                              vars.exitSave, vars.exitSaveToyBarn,
                                              vars.bossHealth, vars.bossPhase};
-
-    current.subLevel = 1;
-    current.isSaving = false;
-    current.isLoading = false;
     
     while (vars.gameReady.Current == 0) {
         Thread.Sleep(5);
@@ -75,7 +71,11 @@ init
         vars.watchers.UpdateAll(game);
     }
     print("Game ready!");
+
     timer.IsGameTimePaused = false;
+    current.subLevel = 1;
+    current.isSaving = false;
+    current.isLoading = false;
 }
 
 update
