@@ -73,7 +73,6 @@ init
     print("Game ready!");
 
     timer.IsGameTimePaused = false;
-    current.subLevel = 1;
     current.isSaving = false;
     current.isLoading = false;
 }
