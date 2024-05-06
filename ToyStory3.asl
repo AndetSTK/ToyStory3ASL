@@ -64,40 +64,44 @@ init
                                              vars.levelSave1, vars.levelSave2,
                                              vars.exitSave, vars.exitSaveToyBarn,
                                              vars.bossHealth, vars.bossPhase};
-    
-    while (vars.gameReady.Current == 0) {
-        Thread.Sleep(5);
-        print("Waiting until game ready...");
-        vars.watchers.UpdateAll(game);
-    }
-    print("Game ready!");
-
-    timer.IsGameTimePaused = false;
-    current.isSaving = false;
-    current.isLoading = false;
-    vars.endSplitReady = false;
+    vars.preMenu = true;
 }
 
 update
 {
-    vars.watchers.UpdateAll(game);
-    
     if (timer.CurrentSplitIndex == -1) {current.subLevel = 1; current.isLoading = false; current.isSaving = false; vars.endSplitReady = false;}
 
-    if ((vars.exitSave.Current != 1 && vars.exitSave.Current > 0.9 && vars.exitSave.Current < 1.1) ||
-        (vars.exitSaveToyBarn.Current != 1 && vars.exitSaveToyBarn.Current > 0.9 && vars.exitSaveToyBarn.Current < 1.1) ||
-        (vars.levelSave1.Current > 0.01 && vars.levelSave1.Current < 0.9) ||
-        (vars.levelSave1.Current == 1 && vars.levelSave2.Current == 1)) {current.isSaving = true;}
+    if (vars.preMenu) {
+        if (vars.gameReady.Current == 0) {
+            print("Waiting until game ready...");
+            vars.watchers.UpdateAll(game);
+        } else {
+            print("Game ready!");
 
-    if (vars.load.Old == 0 && vars.load.Current > 0) {current.isLoading = true; current.isSaving = false;}
-    if (vars.load.Old > 0 && vars.load.Current == 0) {current.isLoading = false;}
+            vars.preMenu = false;
+            timer.IsGameTimePaused = false;
+            current.isSaving = false;
+            current.isLoading = false;
+            vars.endSplitReady = false;
+        }
+    } else {
+        vars.watchers.UpdateAll(game);
 
-    if (current.isSaving && !old.isSaving && vars.levelFile.Current != "particles/wtwii_town_wii.dbl") {current.subLevel++;}
-    
-    if (vars.levelFile.Current == "particles/st_hauntedbakery_wii.dbl" &&
-        vars.bossPhase.Current == 4 &&
-        vars.bossHealth.Current > 0.3 &&
-        vars.bossHealth.Current < 0.7) {vars.endSplitReady = true;}
+        if ((vars.exitSave.Current != 1 && vars.exitSave.Current > 0.9 && vars.exitSave.Current < 1.1) ||
+            (vars.exitSaveToyBarn.Current != 1 && vars.exitSaveToyBarn.Current > 0.9 && vars.exitSaveToyBarn.Current < 1.1) ||
+            (vars.levelSave1.Current > 0.01 && vars.levelSave1.Current < 0.9) ||
+            (vars.levelSave1.Current == 1 && vars.levelSave2.Current == 1)) {current.isSaving = true;}
+
+        if (vars.load.Old == 0 && vars.load.Current > 0) {current.isLoading = true; current.isSaving = false;}
+        if (vars.load.Old > 0 && vars.load.Current == 0) {current.isLoading = false;}
+
+        if (current.isSaving && !old.isSaving && vars.levelFile.Current != "particles/wtwii_town_wii.dbl") {current.subLevel++;}
+        
+        if (vars.levelFile.Current == "particles/st_hauntedbakery_wii.dbl" &&
+            vars.bossPhase.Current == 4 &&
+            vars.bossHealth.Current > 0.3 &&
+            vars.bossHealth.Current < 0.7) {vars.endSplitReady = true;}
+    }
 }
 
 start
@@ -118,7 +122,7 @@ split
 
 isLoading
 {
-    return current.isLoading || current.isSaving;
+    return current.isLoading || current.isSaving || vars.preMenu;
 }
 
 exit
